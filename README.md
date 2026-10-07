@@ -1,56 +1,112 @@
-# Welcome to your Expo app 👋
+# React Native Expo App 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A universal mobile and web application built with [Expo](https://expo.dev) (SDK 57), React Native (0.86), and React 19.
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Getting Started
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Install Dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Start the Development Server
 
-### Other setup steps
+```bash
+npm start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+You can run the app across platforms using the following commands:
 
-## Learn more
+- **Android**: `npm run android` (Android emulator or connected device)
+- **iOS**: `npm run ios` (iOS simulator - macOS only)
+- **Web**: `npm run web` (Opens in your default browser)
+- **Expo Go**: `npm run start:go` (Run directly in the Expo Go client app)
+- **Tunnel Mode**: `npm run start:tunnel` (Access dev server across different networks via `@expo/ngrok`)
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🛠️ Modifications & Recent Improvements
 
-## Join the community
+Recent updates and architectural improvements made to the project include:
 
-Join our community of developers creating universal apps.
+1. **Linting & Code Quality Configuration**
+   - Configured modern ESLint flat configuration (`eslint.config.js`) using `eslint-config-expo/flat`.
+   - Added `npm run lint` script to catch syntax and formatting issues early.
+   - Verified strict TypeScript type-checking across the codebase.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+2. **Custom Metro Bundler Setup**
+   - Added customized `metro.config.js` via `expo/metro-config` to ensure optimized asset resolution and bundle building.
+
+3. **Remote & Tunneling Support**
+   - Integrated `@expo/ngrok` dependency and added `start:tunnel` script for remote device testing outside local networks.
+   - Added dedicated `start:go` script for seamless Expo Go testing.
+
+4. **Web Support & Hydration Fixes**
+   - Enhanced platform-specific behavior with `use-color-scheme.web.ts` and responsive components (`animated-icon.web.tsx`, `app-tabs.web.tsx`, `web-badge.tsx`).
+   - Resolved hydration state handling for smooth server-side and browser rendering.
+
+5. **Clean Directory & Module Structure**
+   - Organized source code inside `src/` with path aliasing (`@/*`):
+     - `src/app/`: Expo Router file-based screens and layouts.
+     - `src/components/`: Reusable UI elements, themed primitives, and animated icons.
+     - `src/constants/`: Centralized theme tokens, colors, and layout metrics.
+     - `src/hooks/`: Custom hooks for color schemes, themes, and platform logic.
+
+---
+
+## 📁 Project Structure
+
+```text
+├── assets/                 # App icons, splash screens, and static images
+├── scripts/                # Helper scripts (e.g., project reset)
+├── src/
+│   ├── app/                # Expo Router file-based routing
+│   │   ├── _layout.tsx     # Root and tab navigation layout
+│   │   ├── index.tsx       # Home screen
+│   │   └── explore.tsx     # Explore screen
+│   ├── components/         # Reusable UI components
+│   │   ├── ui/             # Primitives (e.g., collapsible views)
+│   │   └── ...             # Themed text, views, animated icons
+│   ├── constants/          # Theme constants and design tokens
+│   ├── hooks/              # Custom hooks (theme, color scheme)
+│   └── global.css          # Global style declarations
+├── app.json                # Expo application configuration
+├── eslint.config.js        # ESLint flat config
+├── metro.config.js         # Metro bundler config
+├── package.json            # Dependencies and scripts
+└── tsconfig.json           # TypeScript configuration
+```
+
+---
+
+## 🧪 Code Quality & Verification
+
+To verify code quality and type safety:
+
+```bash
+# Run ESLint checks
+npm run lint
+
+# Run TypeScript typecheck
+npx tsc --noEmit
+```
+
+---
+
+## 🔮 Planned Improvements
+
+- [ ] Implement persistent state management (e.g., Zustand or React Context).
+- [ ] Add automated unit and component testing with Jest and React Native Testing Library.
+- [ ] Configure EAS Build and EAS Update pipelines for automated builds and over-the-air releases.
+- [ ] Expand screen flows and interactive features.
+
+---
+
+## 📚 Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [Expo Router Guide](https://docs.expo.dev/router/introduction/)
+- [React Native Documentation](https://reactnative.dev/)
