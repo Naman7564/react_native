@@ -28,6 +28,31 @@ jobs:
       - name: 🛠️ Prebuild Native iOS Project
         run: npx expo prebuild --platform ios --clean --no-install
 
+      - name: 🔐 Disable Code Signing for All Targets
+        run: |
+          # Append a post_install hook to the Podfile that disables code signing
+          # for every pod target AND the main project targets.
+          # This is required because xcodebuild CLI flags alone don't propagate
+          # to all CocoaPods resource bundle targets.
+          cat >> ios/Podfile << 'PATCH'
+
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+              target.build_configurations.each do |config|
+                config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+                config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+                config.build_settings['CODE_SIGN_IDENTITY'] = ''
+                config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''
+              end
+            end
+            installer.pods_project.build_configurations.each do |config|
+              config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+              config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+              config.build_settings['CODE_SIGN_IDENTITY'] = ''
+            end
+          end
+          PATCH
+
       - name: ☕ Install CocoaPods
         run: |
           cd ios
@@ -56,7 +81,15 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
-            DEVELOPMENT_TEAM=""
+            DEVELOPMENT_TEAM="" | xcbeautify --is-ci || true
+
+          # Verify the .app was actually produced
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -maxdepth 1 2>/dev/null | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ Build failed - no .app bundle found"
+            exit 1
+          fi
+          echo "✅ Build succeeded: $APP_PATH"
 
       - name: 📦 Package into IPA Archive
         run: |
