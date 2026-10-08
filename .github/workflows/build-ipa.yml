@@ -43,17 +43,7 @@ jobs:
         run: npm ci
 
       - name: 🩹 Patch expo-modules-jsi for Swift 6.2 C++ Interop
-        run: |
-          # expo-modules-jsi has SWIFT_RETURNS_RETAINED on RuntimeScheduler constructors.
-          # In Swift 6.2 (Xcode 26), constructors of SWIFT_SHARED_REFERENCE cannot have this annotation.
-          HEADER="node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h"
-          if [ -f "$HEADER" ]; then
-            sed -i '' 's/SWIFT_RETURNS_RETAINED RuntimeScheduler/RuntimeScheduler/g' "$HEADER"
-            echo "✅ Successfully patched RuntimeScheduler.h:"
-            grep -n "RuntimeScheduler(" "$HEADER"
-          else
-            echo "⚠️ Header $HEADER not found"
-          fi
+        run: node scripts/patch-expo-modules-jsi.js
 
       - name: 🛠️ Prebuild Native iOS Project
         run: npx expo prebuild --platform ios --clean --no-install
