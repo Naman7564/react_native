@@ -21,9 +21,8 @@ import { SortModal } from '@/components/SortModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Palette } from '@/constants/colors';
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
-import { getGreeting, formatHeaderDate } from '@/utils/date';
 
-export default function HomeScreen() {
+export default function TodoScreen() {
   const router = useRouter();
   const {
     filteredTodos,
@@ -43,9 +42,6 @@ export default function HomeScreen() {
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-
-  const greeting = getGreeting();
-  const { dayName, formattedDate } = formatHeaderDate();
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -78,25 +74,29 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.listHeader}>
-      {/* Top Greeting Bar */}
+      {/* Top Screen Header */}
       <View style={styles.topHeader}>
         <View>
-          <Text style={styles.dateLabel}>
-            {dayName}, {formattedDate}
-          </Text>
-          <Text style={styles.greetingTitle}>{greeting}</Text>
+          <Text style={styles.headerSubtitle}>Task Management</Text>
+          <Text style={styles.headerTitle}>To-Do List</Text>
         </View>
-        <View style={styles.avatarBadge}>
-          <Ionicons name="sparkles" size={18} color={Palette.primary} />
-        </View>
+        <Pressable
+          style={styles.addTaskTopBtn}
+          onPress={() => router.push('/add-todo')}
+          accessibilityRole="button"
+          accessibilityLabel="Add new task"
+        >
+          <Ionicons name="add" size={20} color="#FFFFFF" />
+          <Text style={styles.addTaskTopText}>New</Text>
+        </Pressable>
       </View>
 
-      {/* Progress Dashboard Card */}
+      {/* Progress Card */}
       <View style={styles.progressSection}>
         <ProgressCard stats={stats} />
       </View>
 
-      {/* Search & Sort Controls Row */}
+      {/* Search & Sort Controls */}
       <View style={styles.controlsRow}>
         <View style={styles.searchContainer}>
           <Ionicons
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: 100, // Room for FAB
+    paddingBottom: 100,
   },
   listHeader: {
     paddingTop: Spacing.md,
@@ -255,29 +255,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: Spacing.lg,
   },
-  dateLabel: {
+  headerSubtitle: {
     fontSize: 13,
     fontWeight: '600',
     color: Palette.light.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  greetingTitle: {
+  headerTitle: {
     fontSize: 26,
     fontWeight: '800',
     color: Palette.light.text,
     letterSpacing: -0.6,
     marginTop: 2,
   },
-  avatarBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Palette.primaryLight,
-    borderWidth: 1.5,
-    borderColor: '#C7D2FE',
+  addTaskTopBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: Palette.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.full,
+    ...Shadows.subtle,
+  },
+  addTaskTopText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   progressSection: {
     marginBottom: Spacing.lg,
