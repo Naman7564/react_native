@@ -1,0 +1,81 @@
+name: Build iOS IPA (For Sideloading)
+
+on:
+  workflow_dispatch: # Allows manual one-click trigger from GitHub Actions tab
+  push:
+    branches:
+      - prod
+
+jobs:
+  build-ipa:
+    name: 🍏 Build Standalone iOS IPA
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🛠️ Prebuild Native iOS Project
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: ☕ Install CocoaPods
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: 🔨 Compile iOS App (Unsigned for Sideloadly/AltStore)
+        run: |
+          WORKSPACE=$(find ios -name "*.xcworkspace" -maxdepth 1 | head -n 1)
+          echo "Found Xcode Workspace: $WORKSPACE"
+
+          # Automatically resolve the scheme name
+          SCHEME=$(xcodebuild -workspace "$WORKSPACE" -list -json | jq -r '.workspace.schemes[0]')
+          echo "Target Scheme: $SCHEME"
+
+          mkdir -p build
+
+          xcodebuild build \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: 📦 Package into IPA Archive
+        run: |
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -maxdepth 1 | head -n 1)
+          echo "Found compiled .app bundle at: $APP_PATH"
+
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+
+          cd build
+          zip -r -q app_dev.ipa Payload
+          cd ..
+
+          echo "✅ Successfully packaged IPA:"
+          ls -lh build/app_dev.ipa
+
+      - name: 🚀 Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app_dev-ipa
+          path: build/app_dev.ipa
+          retention-days: 14
