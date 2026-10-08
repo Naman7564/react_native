@@ -16,6 +16,23 @@ jobs:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🔧 Select Latest Xcode (Swift 6.2+)
+        run: |
+          # ExpoModulesJSI SPM package requires Swift tools version 6.2.0.
+          # Default Xcode on macos-15 ships Swift 6.1. Select the latest available Xcode 26.x.
+          LATEST_XCODE=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)
+          if [ -z "$LATEST_XCODE" ]; then
+            echo "⚠️ No Xcode 26.x found, listing all available Xcode versions:"
+            ls -d /Applications/Xcode*.app
+            echo "Falling back to latest available Xcode..."
+            LATEST_XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -n 1)
+          fi
+          echo "Selecting Xcode: $LATEST_XCODE"
+          sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+          echo "Active Xcode: $(xcode-select -p)"
+          echo "Swift version: $(swift --version)"
+          echo "Xcodebuild version: $(xcodebuild -version | head -1)"
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
